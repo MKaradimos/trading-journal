@@ -8,6 +8,16 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
   const stats = monthlyStats.find((m) => m.month === reportMonth) || null;
   const monthTrades = trades.filter((t) => t.date.slice(0, 7) === reportMonth);
 
+  const calcRR = (t) => {
+    if (t.risk == null || t.risk === 0 || t.plPct == null) return null;
+    return t.plPct / t.risk;
+  };
+
+  const rrTrades = monthTrades.filter((t) => calcRR(t) !== null);
+  const avgRR = rrTrades.length > 0
+    ? rrTrades.reduce((s, t) => s + calcRR(t), 0) / rrTrades.length
+    : null;
+
   const assetStats = (() => {
     const groups = {};
     monthTrades.forEach((t) => {
@@ -190,12 +200,26 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
                         <div className={`font-mono text-xs ${t.plPct >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
                           {t.plPct >= 0 ? "+" : ""}{fmt(t.plPct)}%
                         </div>
+                        {calcRR(t) !== null && (
+                          <div className={`font-mono text-xs ${calcRR(t) >= 1 ? "text-slate-400" : "text-slate-500"}`}>
+                            R:R {calcRR(t) >= 0 ? "+" : ""}{calcRR(t).toFixed(2)}
+                          </div>
+                        )}
                       </div>
                       <button onClick={() => onDelete(t.id)} className="shrink-0 text-slate-600 hover:text-rose-400 transition-colors ml-1" title="Διαγραφή">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {avgRR !== null && (
+                <div className="mt-4 px-4 py-3 bg-slate-800/40 border border-slate-700 rounded-lg flex items-center justify-between">
+                  <span className="text-xs font-mono uppercase tracking-wider text-slate-500">Μέσος R:R</span>
+                  <span className={`font-mono font-bold text-lg ${avgRR >= 1 ? "text-emerald-400" : avgRR >= 0 ? "text-amber-400" : "text-rose-400"}`}>
+                    {avgRR >= 0 ? "+" : ""}{avgRR.toFixed(2)}
+                  </span>
                 </div>
               )}
             </div>
