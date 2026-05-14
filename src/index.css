@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+/* Κρύβει το native clear (×) κουμπί σε number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Κρύβει το × clear button που βγάζουν μερικοί browsers */
+input::-webkit-search-cancel-button,
+input::-ms-clear {
+  display: none;
+}
