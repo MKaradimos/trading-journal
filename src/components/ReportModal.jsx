@@ -8,6 +8,23 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
   const stats = monthlyStats.find((m) => m.month === reportMonth) || null;
   const monthTrades = trades.filter((t) => t.date.slice(0, 7) === reportMonth);
 
+  const assetStats = (() => {
+    const groups = {};
+    monthTrades.forEach((t) => {
+      if (!groups[t.asset]) groups[t.asset] = [];
+      groups[t.asset].push(t);
+    });
+    return Object.entries(groups)
+      .map(([asset, list]) => {
+        const wins = list.filter((t) => t.plEur > 0).length;
+        const losses = list.filter((t) => t.plEur < 0).length;
+        const totalEur = list.reduce((s, t) => s + t.plEur, 0);
+        const winRate = list.length > 0 ? (wins / list.length) * 100 : 0;
+        return { asset, total: list.length, wins, losses, winRate, totalEur, avgEur: totalEur / list.length };
+      })
+      .sort((a, b) => b.total - a.total);
+  })();
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 backdrop-blur-sm overflow-y-auto py-6 px-4"
@@ -55,6 +72,25 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
             <div className="px-6 py-5 border-b border-slate-800">
               <p className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-3">Σύνοψη — {stats.label}</p>
 
+              {/* Highlight sentence */}
+              <div className="mb-4 px-4 py-3 bg-slate-800/60 border border-slate-700 rounded-lg text-sm text-slate-300 leading-relaxed">
+                Αυτόν τον μήνα είχες{" "}
+                <span className={`font-bold ${stats.winRate >= 50 ? "text-emerald-400" : "text-rose-400"}`}>
+                  {fmt(stats.winRate)}% επιτυχία
+                </span>{" "}
+                σε{" "}
+                <span className="font-bold text-white">{stats.total} trades</span>
+                {" "}({" "}
+                <span className="text-emerald-400">{stats.wins} νίκες</span>
+                {" · "}
+                <span className="text-rose-400">{stats.losses} ήττες</span>
+                {" "}) με μέσο αποτέλεσμα{" "}
+                <span className={`font-bold font-mono ${stats.avgEur >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                  {stats.avgEur >= 0 ? "+" : ""}{fmt(stats.avgEur)} €
+                </span>{" "}
+                ανά trade.
+              </div>
+
               <div className={`rounded-xl p-4 text-center border mb-4 ${stats.totalEur >= 0 ? "bg-emerald-500/10 border-emerald-500/30" : "bg-rose-500/10 border-rose-500/30"}`}>
                 <div className="text-xs font-mono text-slate-400 mb-1">Συνολικό αποτέλεσμα</div>
                 <div className={`text-4xl font-bold font-mono ${stats.totalEur >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
@@ -85,6 +121,48 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
                 ))}
               </div>
             </div>
+
+            {assetStats.length > 0 && (
+              <div className="px-6 py-5 border-b border-slate-800">
+                <p className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-3">Ανά Asset</p>
+                <div className="space-y-3">
+                  {assetStats.map((a) => (
+                    <div key={a.asset} className="bg-slate-800/40 rounded-lg px-4 py-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <span className="font-bold text-white">{a.asset}</span>
+                          <span className="text-xs text-slate-500 font-mono">{a.total} trades</span>
+                          <span className="text-xs font-mono">
+                            <span className="text-emerald-400">{a.wins}W</span>
+                            <span className="text-slate-600 mx-1">/</span>
+                            <span className="text-rose-400">{a.losses}L</span>
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className={`font-mono font-bold text-sm ${a.totalEur >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                            {a.totalEur >= 0 ? "+" : ""}{fmt(a.totalEur)} €
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 bg-slate-700 rounded-full h-1.5">
+                          <div
+                            className={`h-1.5 rounded-full transition-all ${a.winRate >= 50 ? "bg-emerald-500" : "bg-rose-500"}`}
+                            style={{ width: `${a.winRate}%` }}
+                          />
+                        </div>
+                        <span className={`text-xs font-mono font-bold w-12 text-right ${a.winRate >= 50 ? "text-emerald-400" : "text-rose-400"}`}>
+                          {fmt(a.winRate)}%
+                        </span>
+                        <span className={`text-xs font-mono text-slate-400 w-20 text-right`}>
+                          μέσο {a.avgEur >= 0 ? "+" : ""}{fmt(a.avgEur)}€
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="px-6 py-5">
               <p className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-3">Trades ({monthTrades.length})</p>
