@@ -10,6 +10,7 @@ export const emptyForm = {
   risk: "",
   plEur: "",
   plPct: "",
+  pips: "",
   notes: "",
   screenshot: "",
 };

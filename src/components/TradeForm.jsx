@@ -97,6 +97,14 @@ export default function TradeForm({
           />
         </Field>
 
+        <Field label="Pips">
+          <input
+            type="number" inputMode="decimal" step="0.1" name="pips"
+            placeholder="π.χ. 45 ή -20"
+            value={form.pips} onChange={(e) => handleChange(e, currentCapital)} className={inputCls()}
+          />
+        </Field>
+
         <div className="sm:col-span-2 lg:col-span-3">
           <Field label="Σημειώσεις">
             <input

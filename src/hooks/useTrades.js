@@ -78,6 +78,7 @@ export function useTrades() {
     risk: form.risk === "" ? null : parseFloat(form.risk),
     plEur: parseFloat(form.plEur),
     plPct: parseFloat(form.plPct),
+    pips: form.pips === "" ? null : parseFloat(form.pips),
     notes: form.notes.trim(),
     screenshot: form.screenshot,
   });
@@ -132,6 +133,7 @@ export function useTrades() {
       risk: t.risk != null ? String(t.risk) : "",
       plEur: String(t.plEur),
       plPct: String(t.plPct),
+      pips: t.pips != null ? String(t.pips) : "",
       notes: t.notes || "",
       screenshot: t.screenshot || "",
     });

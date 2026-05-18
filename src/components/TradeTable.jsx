@@ -46,6 +46,7 @@ function MobileCard({ t, onEdit, onDelete, onLightbox }) {
             <div><div className="text-slate-600 mb-0.5">Entry</div><div>{fmt(t.entry, { maximumFractionDigits: 6 })}</div></div>
             <div><div className="text-slate-600 mb-0.5">Exit</div><div>{fmt(t.exit, { maximumFractionDigits: 6 })}</div></div>
             {t.risk !== null && <div><div className="text-slate-600 mb-0.5">Risk</div><div>{fmt(t.risk)}%</div></div>}
+                            {t.pips != null && <div><div className="text-slate-600 mb-0.5">Pips</div><div className={t.pips >= 0 ? "text-emerald-400" : "text-rose-400"}>{t.pips >= 0 ? "+" : ""}{t.pips}</div></div>}
           </div>
         </div>
         {t.screenshot && (
@@ -85,7 +86,7 @@ export default function TradeTable({ trades, onEdit, onDelete, onLightbox }) {
             <tr>
               <Th>Ημ/νία</Th><Th>Asset</Th><Th>Dir</Th>
               <Th align="right">Entry</Th><Th align="right">Exit</Th><Th align="right">Risk%</Th>
-              <Th align="right">P/L (€)</Th><Th align="right">P/L (%)</Th>
+              <Th align="right">P/L (€)</Th><Th align="right">P/L (%)</Th><Th align="right">Pips</Th>
               <Th>Σημειώσεις</Th><Th align="center">Shot</Th><Th align="center"></Th>
             </tr>
           </thead>
@@ -109,6 +110,9 @@ export default function TradeTable({ trades, onEdit, onDelete, onLightbox }) {
                 </Td>
                 <Td align="right" className={`font-mono ${t.plPct >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
                   {t.plPct >= 0 ? "+" : ""}{fmt(t.plPct)}%
+                </Td>
+                <Td align="right" className={`font-mono ${t.pips != null ? (t.pips >= 0 ? "text-emerald-400" : "text-rose-400") : "text-slate-600"}`}>
+                  {t.pips != null ? `${t.pips >= 0 ? "+" : ""}${t.pips}` : "—"}
                 </Td>
                 <Td className="text-slate-400 max-w-xs truncate">{t.notes || "—"}</Td>
                 <Td align="center">
