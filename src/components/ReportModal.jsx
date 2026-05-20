@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FileText, X, Trash2 } from "lucide-react";
 import { fmt } from "../utils";
 
-export default function ReportModal({ availableMonths, monthlyStats, trades, onDelete, onClose, initialMonth }) {
+export default function ReportModal({ availableMonths, monthlyStats, trades, onDelete, onClose, initialMonth, currentCapital }) {
   const [reportMonth, setReportMonth] = useState(initialMonth ?? availableMonths[0]?.month ?? "");
 
   const stats = monthlyStats.find((m) => m.month === reportMonth) || null;
@@ -112,6 +112,15 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
                 <div className="text-xs text-slate-500 mt-2 font-mono">
                   {stats.totalEur >= 0 ? "✓ Κερδοφόρος μήνας" : "✗ Ζημιογόνος μήνας"}
                 </div>
+                {currentCapital != null && (
+                  <div className="mt-3 pt-3 border-t border-slate-700/50">
+                    <div className="text-xs font-mono text-slate-500 mb-0.5">Τρέχον Κεφάλαιο</div>
+                    <div className={`text-2xl font-bold font-mono ${currentCapital >= 0 ? "text-white" : "text-rose-400"}`}>
+                      {fmt(currentCapital)} €
+                    </div>
+                    <div className="text-xs text-slate-600 font-mono mt-0.5">trades + καταθέσεις − αναλήψεις</div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

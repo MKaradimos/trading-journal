@@ -80,6 +80,7 @@ export default function TradingJournal({ user }) {
           onDelete={deleteTrade}
           onClose={() => setReportOpen(false)}
           initialMonth={displayedStats?.month ?? availableMonths[0]?.month}
+          currentCapital={currentCapital}
         />
       )}
 

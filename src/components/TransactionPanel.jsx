@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowDownCircle, ArrowUpCircle, Plus, Trash2 } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, MinusCircle, Plus, Trash2 } from "lucide-react";
 import { Field, inputCls } from "./ui";
 import { fmt } from "../utils";
 
@@ -26,8 +26,9 @@ export default function TransactionPanel({ transactions, txForm, setTxForm, txEr
             <Field label="Τύπος">
               <div className="flex gap-2">
                 {[
-                  { value: "deposit", label: "+ Κατάθεση", active: "bg-emerald-500/20 border-emerald-500/50 text-emerald-300", icon: <ArrowDownCircle className="w-3.5 h-3.5" /> },
-                  { value: "withdrawal", label: "− Ανάληψη", active: "bg-rose-500/20 border-rose-500/50 text-rose-300", icon: <ArrowUpCircle className="w-3.5 h-3.5" /> },
+                  { value: "deposit",    label: "+ Κατάθεση", active: "bg-emerald-500/20 border-emerald-500/50 text-emerald-300", icon: <ArrowDownCircle className="w-3.5 h-3.5" /> },
+                  { value: "withdrawal", label: "− Ανάληψη",  active: "bg-rose-500/20 border-rose-500/50 text-rose-300",    icon: <ArrowUpCircle className="w-3.5 h-3.5" /> },
+                  { value: "deduction",  label: "✕ Αφαίρεση", active: "bg-amber-500/20 border-amber-500/50 text-amber-300",   icon: <MinusCircle className="w-3.5 h-3.5" /> },
                 ].map((opt) => (
                   <button
                     key={opt.value}
@@ -83,9 +84,11 @@ export default function TransactionPanel({ transactions, txForm, setTxForm, txEr
                   <span className="font-mono text-xs text-slate-500 w-24 shrink-0">{tx.date}</span>
                   {tx.type === "deposit"
                     ? <ArrowDownCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                    : <ArrowUpCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                    : tx.type === "withdrawal"
+                    ? <ArrowUpCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                    : <MinusCircle className="w-4 h-4 text-amber-400 shrink-0" />
                   }
-                  <span className={`font-mono font-semibold text-sm ${tx.type === "deposit" ? "text-emerald-400" : "text-rose-400"}`}>
+                  <span className={`font-mono font-semibold text-sm ${tx.type === "deposit" ? "text-emerald-400" : tx.type === "withdrawal" ? "text-rose-400" : "text-amber-400"}`}>
                     {tx.type === "deposit" ? "+" : "−"}{fmt(tx.amount)} €
                   </span>
                   {tx.notes && <span className="text-xs text-slate-500 flex-1 truncate">{tx.notes}</span>}
