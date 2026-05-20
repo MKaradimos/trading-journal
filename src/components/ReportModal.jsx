@@ -8,15 +8,13 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
   const stats = monthlyStats.find((m) => m.month === reportMonth) || null;
   const monthTrades = trades.filter((t) => t.date.slice(0, 7) === reportMonth);
 
-  const calcRR = (t) => {
-    if (t.risk == null || t.risk === 0 || t.plPct == null) return null;
-    return t.plPct / t.risk;
-  };
+  const calcRR = (t) => t.rValue ?? null;
 
-  const rrTrades = monthTrades.filter((t) => calcRR(t) !== null);
+  const rrTrades = monthTrades.filter((t) => t.rValue != null);
   const avgRR = rrTrades.length > 0
-    ? rrTrades.reduce((s, t) => s + calcRR(t), 0) / rrTrades.length
+    ? rrTrades.reduce((s, t) => s + t.rValue, 0) / rrTrades.length
     : null;
+  const totalR = rrTrades.reduce((s, t) => s + t.rValue, 0);
 
   const assetStats = (() => {
     const groups = {};
@@ -134,7 +132,7 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
                 )}
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
                   { label: "Trades", value: <span className="text-white">{stats.total}</span> },
                   { label: "Win Rate", value: <span className={stats.winRate >= 50 ? "text-emerald-400" : "text-rose-400"}>{fmt(stats.winRate)}%</span> },
@@ -143,6 +141,10 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
                     value: <><span className="text-emerald-400">{stats.wins}</span><span className="text-slate-600 mx-1">/</span><span className="text-rose-400">{stats.losses}</span></>,
                   },
                   { label: "Μέσο / Trade", value: <span className={`font-mono ${stats.avgEur >= 0 ? "text-emerald-400" : "text-rose-400"}`}>{stats.avgEur >= 0 ? "+" : ""}{fmt(stats.avgEur)}€</span> },
+                  ...(rrTrades.length > 0 ? [
+                    { label: "Σύνολο R", value: <span className={`font-mono ${totalR >= 0 ? "text-emerald-400" : "text-rose-400"}`}>{totalR >= 0 ? "+" : ""}{totalR.toFixed(2)}R</span> },
+                    { label: "Μέσο R:R", value: <span className={`font-mono ${avgRR >= 1.5 ? "text-emerald-400" : avgRR >= 1 ? "text-amber-400" : "text-rose-400"}`}>{avgRR >= 0 ? "+" : ""}{avgRR.toFixed(2)}R</span> },
+                  ] : []),
                 ].map(({ label, value }) => (
                   <div key={label} className="bg-slate-800/50 rounded-lg p-3 text-center">
                     <div className="text-xs text-slate-500 font-mono mb-1">{label}</div>

@@ -1,6 +1,6 @@
 import { Plus, Pencil, X } from "lucide-react";
 import { Field, inputCls } from "./ui";
-import { ASSET_TYPES, SETUP_QUALITY } from "../constants";
+import { ASSET_TYPES } from "../constants";
 
 export default function TradeForm({
   form, setForm, editingId, errors,
@@ -49,28 +49,6 @@ export default function TradeForm({
               <option key={a.value} value={a.value}>{a.label}</option>
             ))}
           </select>
-        </Field>
-
-        <Field label="Setup Quality">
-          <div className="flex gap-2">
-            {SETUP_QUALITY.map((s) => (
-              <button
-                key={s.value}
-                type="button"
-                onClick={() => handleChange({ target: { name: "setup", value: s.value } }, currentCapital)}
-                className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all border ${
-                  form.setup === s.value
-                    ? s.color === "emerald"
-                      ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300"
-                      : "bg-amber-500/20 border-amber-500/50 text-amber-300"
-                    : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600"
-                }`}
-              >
-                {s.label}
-                <span className="block text-xs opacity-60">{s.riskPct}% risk</span>
-              </button>
-            ))}
-          </div>
         </Field>
 
         <Field label="Κατεύθυνση">
