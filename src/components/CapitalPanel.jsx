@@ -1,4 +1,4 @@
-import { INITIAL_CAPITAL, MONTHLY_R_TARGET, MAX_LOSS_STREAK } from "../constants";
+import { INITIAL_CAPITAL, MONTHLY_R_TARGET } from "../constants";
 import { fmt } from "../utils";
 
 function RBar({ value, min, max }) {
@@ -7,16 +7,12 @@ function RBar({ value, min, max }) {
   return (
     <div className="relative h-2 w-full bg-slate-800 rounded-full overflow-hidden">
       <div className={`h-full rounded-full transition-all duration-500 ${color}`} style={{ width: `${pct}%` }} />
-      {/* Min target marker */}
-      <div
-        className="absolute top-0 h-full w-0.5 bg-slate-500 opacity-60"
-        style={{ left: `${(min / max) * 100}%` }}
-      />
+      <div className="absolute top-0 h-full w-0.5 bg-slate-500 opacity-60" style={{ left: `${(min / max) * 100}%` }} />
     </div>
   );
 }
 
-export default function CapitalPanel({ currentCapital, monthTarget, lossStreak, currentMonthStats }) {
+export default function CapitalPanel({ currentCapital, monthTarget, currentMonthStats }) {
   const pl = currentCapital - INITIAL_CAPITAL;
   const pct = (pl / INITIAL_CAPITAL) * 100;
   const positive = currentCapital >= INITIAL_CAPITAL;
@@ -30,18 +26,10 @@ export default function CapitalPanel({ currentCapital, monthTarget, lossStreak, 
   const onTarget = gap != null && gap <= 0;
 
   const totalR = currentMonthStats?.totalR ?? null;
-  const streakWarning = lossStreak >= MAX_LOSS_STREAK;
+  const avgR = currentMonthStats?.avgR ?? null;
 
   return (
     <section className="mb-8 space-y-3">
-      {/* Loss streak warning */}
-      {streakWarning && (
-        <div className="flex items-center gap-3 px-5 py-3 bg-rose-500/10 border border-rose-500/40 rounded-xl text-rose-400 text-sm font-semibold">
-          <span className="text-lg">⚠️</span>
-          <span>{lossStreak} consecutive losses — STOP TRADING. Αξιολόγησε πριν το επόμενο trade.</span>
-        </div>
-      )}
-
       {/* Capital row */}
       <div className={`relative rounded-2xl border overflow-hidden ${positive ? "border-emerald-500/30 bg-emerald-500/5" : "border-rose-500/30 bg-rose-500/5"}`}>
         <div className="flex flex-col sm:flex-row items-stretch">
@@ -75,41 +63,35 @@ export default function CapitalPanel({ currentCapital, monthTarget, lossStreak, 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Monthly R */}
         <div className="rounded-2xl border border-slate-700 bg-slate-900/40 px-6 py-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="text-xs font-mono uppercase tracking-wider text-slate-500">R αυτόν τον μήνα</div>
-            {lossStreak > 0 && (
-              <span className={`text-xs font-mono px-2 py-0.5 rounded-full border ${
-                streakWarning
-                  ? "bg-rose-500/20 border-rose-500/50 text-rose-400"
-                  : "bg-amber-500/20 border-amber-500/50 text-amber-400"
-              }`}>
-                {lossStreak} loss streak {streakWarning ? "⚠️" : ""}
-              </span>
-            )}
-          </div>
+          <div className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-3">R αυτόν τον μήνα</div>
           {totalR != null ? (
             <>
-              <div className={`text-4xl font-bold font-mono mb-3 ${totalR >= MONTHLY_R_TARGET.min ? "text-emerald-400" : totalR >= 0 ? "text-amber-400" : "text-rose-400"}`}>
-                {totalR >= 0 ? "+" : ""}{totalR.toFixed(2)}R
+              <div className="flex items-end gap-6 mb-3">
+                <div>
+                  <div className="text-xs text-slate-600 font-mono mb-0.5">Σύνολο</div>
+                  <div className={`text-4xl font-bold font-mono ${totalR >= MONTHLY_R_TARGET.min ? "text-emerald-400" : totalR >= 0 ? "text-amber-400" : "text-rose-400"}`}>
+                    {totalR >= 0 ? "+" : ""}{totalR.toFixed(2)}R
+                  </div>
+                </div>
+                {avgR != null && (
+                  <div className="pb-1">
+                    <div className="text-xs text-slate-600 font-mono mb-0.5">Μέσο R:R</div>
+                    <div className={`text-2xl font-bold font-mono ${avgR >= 1.5 ? "text-emerald-400" : avgR >= 1 ? "text-amber-400" : "text-rose-400"}`}>
+                      {avgR >= 0 ? "+" : ""}{avgR.toFixed(2)}R
+                    </div>
+                    <div className="text-xs text-slate-600 font-mono mt-0.5">στόχος 1.5R–2R+</div>
+                  </div>
+                )}
               </div>
               <RBar value={totalR} min={MONTHLY_R_TARGET.min} max={MONTHLY_R_TARGET.max} />
               <div className="flex justify-between mt-1 text-xs font-mono text-slate-600">
                 <span>0R</span>
-                <span className="text-slate-500">στόχος {MONTHLY_R_TARGET.min}R–{MONTHLY_R_TARGET.max}R</span>
+                <span>στόχος {MONTHLY_R_TARGET.min}R–{MONTHLY_R_TARGET.max}R</span>
                 <span>{MONTHLY_R_TARGET.max}R</span>
               </div>
-              {currentMonthStats?.avgR != null && (
-                <div className="mt-2 text-xs font-mono text-slate-500">
-                  Μέσο R/trade:{" "}
-                  <span className={currentMonthStats.avgR >= 1.5 ? "text-emerald-400" : currentMonthStats.avgR >= 1 ? "text-amber-400" : "text-rose-400"}>
-                    {currentMonthStats.avgR >= 0 ? "+" : ""}{currentMonthStats.avgR.toFixed(2)}R
-                  </span>
-                  {" · "}στόχος 1.5R–2R+
-                </div>
-              )}
             </>
           ) : (
-            <div className="text-slate-600 text-sm font-mono">Δεν υπάρχουν trades με R ακόμη</div>
+            <div className="text-slate-600 text-sm font-mono">Καταχώρησε trades με Stop Loss για να υπολογιστεί το R</div>
           )}
         </div>
 

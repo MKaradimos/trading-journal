@@ -133,7 +133,6 @@ export default function TradingJournal({ user }) {
           <CapitalPanel
             currentCapital={currentCapital}
             monthTarget={monthTarget}
-            lossStreak={lossStreak}
             currentMonthStats={monthlyStats.find((m) => m.month === new Date().toISOString().slice(0, 7)) ?? null}
           />
         )}
