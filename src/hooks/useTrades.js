@@ -4,7 +4,7 @@ import {
   collection, addDoc, deleteDoc, updateDoc,
   doc, onSnapshot, query, orderBy,
 } from "firebase/firestore";
-import { TRADES_COLLECTION, emptyForm, ASSET_TYPES } from "../constants";
+import { TRADES_COLLECTION, emptyForm, ASSET_TYPES, detectAssetType, SETUP_QUALITY } from "../constants";
 import { readFileAsDataURL } from "../utils";
 
 export function useTrades() {
@@ -32,33 +32,43 @@ export function useTrades() {
     setForm((f) => {
       const updated = { ...f, [name]: value };
 
+      // Auto-detect asset type when asset name changes
+      if (name === "asset") {
+        const detected = detectAssetType(value);
+        if (detected) updated.assetType = detected;
+      }
+
       const entry     = parseFloat(name === "entry"    ? value : f.entry);
       const stopLoss  = parseFloat(name === "stopLoss" ? value : f.stopLoss);
       const exit      = parseFloat(name === "exit"     ? value : f.exit);
       const plEur     = parseFloat(name === "plEur"    ? value : f.plEur);
       const direction = name === "direction" ? value : f.direction;
-      const assetType = name === "assetType" ? value : f.assetType;
+      const assetType = name === "assetType" ? value : (name === "asset" ? (detectAssetType(value) ?? f.assetType) : f.assetType);
       const multiplier = ASSET_TYPES.find((a) => a.value === assetType)?.multiplier ?? 1;
 
-      // Auto P/L % from P/L €
-      if (name === "plEur" && currentCapital > 0 && !isNaN(plEur)) {
+      // Auto P/L %
+      if (!isNaN(plEur) && currentCapital > 0) {
         updated.plPct = String(((plEur / currentCapital) * 100).toFixed(2));
       }
 
-      // Auto pips from entry/exit/direction/assetType
+      // Auto Pips
       if (!isNaN(entry) && !isNaN(exit)) {
         const rawPips = direction === "long" ? (exit - entry) * multiplier : (entry - exit) * multiplier;
         updated.pips = String(parseFloat(rawPips.toFixed(1)));
       }
 
-      // Auto Risk % and Risk € from entry/stopLoss/plEur/capital
-      if (!isNaN(entry) && !isNaN(stopLoss) && !isNaN(plEur) && currentCapital > 0 && entry !== stopLoss) {
+      // Auto Risk %
+      if (!isNaN(entry) && !isNaN(stopLoss) && !isNaN(plEur) && !isNaN(exit) && currentCapital > 0 && entry !== stopLoss) {
         const slDistance = Math.abs(entry - stopLoss);
-        const tpDistance = !isNaN(exit) ? Math.abs(exit - entry) : null;
-        const riskEur = tpDistance
-          ? Math.abs(plEur) * (slDistance / tpDistance)
-          : Math.abs(plEur * (slDistance / (Math.abs(exit - entry) || slDistance)));
-        updated.risk = String(((riskEur / currentCapital) * 100).toFixed(2));
+        const tpDistance = Math.abs(exit - entry);
+        if (tpDistance > 0) {
+          const riskEur = Math.abs(plEur) * (slDistance / tpDistance);
+          updated.risk = String(((riskEur / currentCapital) * 100).toFixed(2));
+
+          // Auto R value = P/L € ÷ Risk €
+          const rVal = plEur / riskEur;
+          updated.rValue = String(parseFloat(rVal.toFixed(2)));
+        }
       }
 
       return updated;
@@ -107,6 +117,8 @@ export function useTrades() {
     plEur: parseFloat(form.plEur),
     plPct: parseFloat(form.plPct),
     pips: form.pips === "" ? null : parseFloat(form.pips),
+    rValue: form.rValue === "" ? null : parseFloat(form.rValue),
+    setup: form.setup || "aplus",
     notes: form.notes.trim(),
     screenshot: form.screenshot,
   });
@@ -164,6 +176,8 @@ export function useTrades() {
       plEur: String(t.plEur),
       plPct: String(t.plPct),
       pips: t.pips != null ? String(t.pips) : "",
+      rValue: t.rValue != null ? String(t.rValue) : "",
+      setup: t.setup || "aplus",
       notes: t.notes || "",
       screenshot: t.screenshot || "",
     });

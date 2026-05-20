@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { INITIAL_CAPITAL } from "../constants";
+import { INITIAL_CAPITAL, MAX_LOSS_STREAK } from "../constants";
 import { monthKey, monthLabel } from "../utils";
 
 export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
@@ -19,6 +19,9 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
         const totalPct = list.reduce((s, t) => s + t.plPct, 0);
         const best = list.reduce((b, t) => (b === null || t.plEur > b.plEur ? t : b), null);
         const worst = list.reduce((w, t) => (w === null || t.plEur < w.plEur ? t : w), null);
+        const rTrades = list.filter((t) => t.rValue != null);
+        const totalR = rTrades.reduce((s, t) => s + t.rValue, 0);
+        const avgR = rTrades.length > 0 ? totalR / rTrades.length : null;
         return {
           month,
           label: monthLabel(month),
@@ -31,6 +34,8 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
           avgEur: list.length > 0 ? totalEur / list.length : 0,
           best,
           worst,
+          totalR: rTrades.length > 0 ? totalR : null,
+          avgR,
         };
       })
       .sort((a, b) => a.month.localeCompare(b.month));
@@ -74,10 +79,32 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
     return INITIAL_CAPITAL + totalPl + netTransactions;
   }, [trades, netTransactions]);
 
+  // Loss streak — μετράει consecutive losses από το τελευταίο trade
+  const lossStreak = useMemo(() => {
+    const sorted = [...trades].sort((a, b) => b.date.localeCompare(a.date));
+    let streak = 0;
+    for (const t of sorted) {
+      if (t.plEur < 0) streak++;
+      else break;
+    }
+    return streak;
+  }, [trades]);
+
+  // Κεφάλαιο αρχής τρέχοντος μήνα = currentCapital μείον τα P/L του τρέχοντος μήνα
+  const monthTarget = useMemo(() => {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const thisMonthPl = trades
+      .filter((t) => monthKey(t.date) === currentMonth)
+      .reduce((s, t) => s + (t.plEur || 0), 0);
+    const capitalAtMonthStart = currentCapital - thisMonthPl;
+    const target = capitalAtMonthStart * 1.9;
+    return { target, capitalAtMonthStart };
+  }, [trades, currentCapital]);
+
   const displayedTrades = useMemo(() => {
     if (selectedMonth === "all") return trades;
     return trades.filter((t) => monthKey(t.date) === selectedMonth);
   }, [trades, selectedMonth]);
 
-  return { monthlyStats, availableMonths, displayedStats, currentCapital, displayedTrades };
+  return { monthlyStats, availableMonths, displayedStats, currentCapital, displayedTrades, monthTarget, lossStreak };
 }

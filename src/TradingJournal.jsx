@@ -41,7 +41,7 @@ export default function TradingJournal({ user }) {
 
   const {
     monthlyStats, availableMonths,
-    displayedStats, currentCapital, displayedTrades,
+    displayedStats, currentCapital, displayedTrades, monthTarget, lossStreak,
   } = useMonthlyStats(trades, selectedMonth, netTransactions);
 
   return (
@@ -81,6 +81,7 @@ export default function TradingJournal({ user }) {
           onClose={() => setReportOpen(false)}
           initialMonth={displayedStats?.month ?? availableMonths[0]?.month}
           currentCapital={currentCapital}
+          monthTarget={monthTarget}
         />
       )}
 
@@ -128,7 +129,14 @@ export default function TradingJournal({ user }) {
           </div>
         </header>
 
-        {!loading && <CapitalPanel currentCapital={currentCapital} />}
+        {!loading && (
+          <CapitalPanel
+            currentCapital={currentCapital}
+            monthTarget={monthTarget}
+            lossStreak={lossStreak}
+            currentMonthStats={monthlyStats.find((m) => m.month === new Date().toISOString().slice(0, 7)) ?? null}
+          />
+        )}
 
         {!loading && (
           <TransactionPanel

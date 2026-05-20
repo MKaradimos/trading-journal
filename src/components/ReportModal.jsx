@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FileText, X, Trash2 } from "lucide-react";
 import { fmt } from "../utils";
 
-export default function ReportModal({ availableMonths, monthlyStats, trades, onDelete, onClose, initialMonth, currentCapital }) {
+export default function ReportModal({ availableMonths, monthlyStats, trades, onDelete, onClose, initialMonth, currentCapital, monthTarget }) {
   const [reportMonth, setReportMonth] = useState(initialMonth ?? availableMonths[0]?.month ?? "");
 
   const stats = monthlyStats.find((m) => m.month === reportMonth) || null;
@@ -115,10 +115,21 @@ export default function ReportModal({ availableMonths, monthlyStats, trades, onD
                 {currentCapital != null && (
                   <div className="mt-3 pt-3 border-t border-slate-700/50">
                     <div className="text-xs font-mono text-slate-500 mb-0.5">Τρέχον Κεφάλαιο</div>
-                    <div className={`text-2xl font-bold font-mono ${currentCapital >= 0 ? "text-white" : "text-rose-400"}`}>
+                    <div className="text-2xl font-bold font-mono text-white">
                       {fmt(currentCapital)} €
                     </div>
                     <div className="text-xs text-slate-600 font-mono mt-0.5">trades + καταθέσεις − αναλήψεις</div>
+                  </div>
+                )}
+                {monthTarget?.target != null && (
+                  <div className="mt-3 pt-3 border-t border-slate-700/50">
+                    <div className="text-xs font-mono text-slate-500 mb-0.5">Στόχος Μήνα (+90%)</div>
+                    <div className={`text-2xl font-bold font-mono ${currentCapital >= monthTarget.target ? "text-emerald-400" : "text-amber-400"}`}>
+                      {fmt(monthTarget.target)} €
+                    </div>
+                    <div className={`text-sm font-mono mt-0.5 ${currentCapital >= monthTarget.target ? "text-emerald-400" : "text-rose-400"}`}>
+                      {currentCapital >= monthTarget.target ? "✓ Πάνω από στόχο" : `Απομένουν ${fmt(monthTarget.target - currentCapital)} €`}
+                    </div>
                   </div>
                 )}
               </div>

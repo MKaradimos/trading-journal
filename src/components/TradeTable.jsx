@@ -86,7 +86,7 @@ export default function TradeTable({ trades, onEdit, onDelete, onLightbox }) {
             <tr>
               <Th>Ημ/νία</Th><Th>Asset</Th><Th>Dir</Th>
               <Th align="right">Entry</Th><Th align="right">Exit</Th><Th align="right">Risk%</Th>
-              <Th align="right">P/L (€)</Th><Th align="right">P/L (%)</Th><Th align="right">Pips</Th>
+              <Th align="right">P/L (€)</Th><Th align="right">P/L (%)</Th><Th align="right">Pips</Th><Th align="right">R</Th>
               <Th>Σημειώσεις</Th><Th align="center">Shot</Th><Th align="center"></Th>
             </tr>
           </thead>
@@ -113,6 +113,9 @@ export default function TradeTable({ trades, onEdit, onDelete, onLightbox }) {
                 </Td>
                 <Td align="right" className={`font-mono ${t.pips != null ? (t.pips >= 0 ? "text-emerald-400" : "text-rose-400") : "text-slate-600"}`}>
                   {t.pips != null ? `${t.pips >= 0 ? "+" : ""}${t.pips}` : "—"}
+                </Td>
+                <Td align="right" className={`font-mono font-semibold ${t.rValue != null ? (t.rValue >= 1.5 ? "text-emerald-400" : t.rValue >= 0 ? "text-amber-400" : "text-rose-400") : "text-slate-600"}`}>
+                  {t.rValue != null ? `${t.rValue >= 0 ? "+" : ""}${t.rValue.toFixed(2)}R` : "—"}
                 </Td>
                 <Td className="text-slate-400 max-w-xs truncate">{t.notes || "—"}</Td>
                 <Td align="center">

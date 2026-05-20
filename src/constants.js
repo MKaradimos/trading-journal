@@ -9,6 +9,27 @@ export const ASSET_TYPES = [
   { value: "crypto", label: "Crypto", multiplier: 1 },
 ];
 
+const INDEX_PATTERNS = /^(US30|US100|US500|SPX|NAS|DAX|FTSE|DOW|NDX|SP500|CAC|NIKKEI|ASX|UK100|GER|FRA)/i;
+const CRYPTO_PATTERNS = /^(BTC|ETH|XRP|SOL|BNB|ADA|DOGE|LTC|AVAX|DOT|MATIC|LINK)/i;
+const JPY_PATTERNS = /JPY/i;
+
+export function detectAssetType(asset) {
+  if (!asset) return null;
+  const a = asset.trim().toUpperCase();
+  if (INDEX_PATTERNS.test(a)) return "index";
+  if (CRYPTO_PATTERNS.test(a)) return "crypto";
+  if (JPY_PATTERNS.test(a)) return "jpy";
+  return "forex";
+}
+
+export const SETUP_QUALITY = [
+  { value: "aplus", label: "A+ Setup", riskPct: 9, color: "emerald" },
+  { value: "normal", label: "Normal",  riskPct: 5, color: "amber" },
+];
+
+export const MONTHLY_R_TARGET = { min: 7, max: 9 };
+export const MAX_LOSS_STREAK  = 2;
+
 export const emptyForm = {
   date: new Date().toISOString().split("T")[0],
   asset: "",
@@ -21,6 +42,8 @@ export const emptyForm = {
   plEur: "",
   plPct: "",
   pips: "",
+  rValue: "",
+  setup: "aplus",
   notes: "",
   screenshot: "",
 };
