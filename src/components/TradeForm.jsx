@@ -78,6 +78,11 @@ export default function TradeForm({
             placeholder="π.χ. 1.5" value={form.risk} onChange={handleChange}
             className={inputCls()}
           />
+          {form.risk !== "" && !isNaN(parseFloat(form.risk)) && currentCapital > 0 && (
+            <p className="mt-1 text-xs font-mono text-amber-400">
+              = {((parseFloat(form.risk) / 100) * currentCapital).toFixed(2)} €
+            </p>
+          )}
         </Field>
 
         <Field label="Entry Price" error={errors.entry}>
