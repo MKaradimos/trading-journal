@@ -4,8 +4,10 @@ import { logout } from "./firebase";
 
 import { useTrades } from "./hooks/useTrades";
 import { useMonthlyStats } from "./hooks/useMonthlyStats";
+import { useTransactions } from "./hooks/useTransactions";
 
 import CapitalPanel from "./components/CapitalPanel";
+import TransactionPanel from "./components/TransactionPanel";
 import TradeForm from "./components/TradeForm";
 import MonthSelector from "./components/MonthSelector";
 import StatsSection from "./components/StatsSection";
@@ -30,9 +32,17 @@ export default function TradingJournal({ user }) {
   } = useTrades();
 
   const {
+    transactions,
+    txForm, setTxForm,
+    txError,
+    saveTransaction, deleteTransaction,
+    netTransactions,
+  } = useTransactions();
+
+  const {
     monthlyStats, availableMonths,
     displayedStats, currentCapital, displayedTrades,
-  } = useMonthlyStats(trades, selectedMonth);
+  } = useMonthlyStats(trades, selectedMonth, netTransactions);
 
   return (
     <div className="min-h-screen bg-[#0a0e14] text-slate-200 font-sans">
@@ -118,6 +128,17 @@ export default function TradingJournal({ user }) {
         </header>
 
         {!loading && <CapitalPanel currentCapital={currentCapital} />}
+
+        {!loading && (
+          <TransactionPanel
+            transactions={transactions}
+            txForm={txForm}
+            setTxForm={setTxForm}
+            txError={txError}
+            saveTransaction={saveTransaction}
+            deleteTransaction={deleteTransaction}
+          />
+        )}
 
         <TradeForm
           form={form} setForm={setForm}

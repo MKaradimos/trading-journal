@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { INITIAL_CAPITAL } from "../constants";
 import { monthKey, monthLabel } from "../utils";
 
-export function useMonthlyStats(trades, selectedMonth) {
+export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
   const monthlyStats = useMemo(() => {
     const groups = {};
     trades.forEach((t) => {
@@ -71,8 +71,8 @@ export function useMonthlyStats(trades, selectedMonth) {
 
   const currentCapital = useMemo(() => {
     const totalPl = trades.reduce((s, t) => s + (t.plEur || 0), 0);
-    return INITIAL_CAPITAL + totalPl;
-  }, [trades]);
+    return INITIAL_CAPITAL + totalPl + netTransactions;
+  }, [trades, netTransactions]);
 
   const displayedTrades = useMemo(() => {
     if (selectedMonth === "all") return trades;

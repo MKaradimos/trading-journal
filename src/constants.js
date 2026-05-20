@@ -1,4 +1,5 @@
 export const TRADES_COLLECTION = "trades";
+export const TRANSACTIONS_COLLECTION = "transactions";
 export const INITIAL_CAPITAL = 4500;
 
 export const ASSET_TYPES = [
