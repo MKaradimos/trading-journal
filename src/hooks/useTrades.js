@@ -4,7 +4,7 @@ import {
   collection, addDoc, deleteDoc, updateDoc,
   doc, onSnapshot, query, orderBy,
 } from "firebase/firestore";
-import { TRADES_COLLECTION, emptyForm } from "../constants";
+import { TRADES_COLLECTION, emptyForm, ASSET_TYPES } from "../constants";
 import { readFileAsDataURL } from "../utils";
 
 export function useTrades() {
@@ -31,10 +31,37 @@ export function useTrades() {
     const { name, value } = e.target;
     setForm((f) => {
       const updated = { ...f, [name]: value };
+
+      // Auto P/L % from P/L €
       if (name === "plEur" && currentCapital > 0) {
         const eur = parseFloat(value);
         updated.plPct = isNaN(eur) ? f.plPct : String(((eur / currentCapital) * 100).toFixed(2));
       }
+
+      // Auto pips from entry/exit/assetType
+      if (name === "entry" || name === "exit" || name === "assetType") {
+        const entry = parseFloat(name === "entry" ? value : f.entry);
+        const exit = parseFloat(name === "exit" ? value : f.exit);
+        const assetType = name === "assetType" ? value : f.assetType;
+        const multiplier = ASSET_TYPES.find((a) => a.value === assetType)?.multiplier ?? 1;
+        if (!isNaN(entry) && !isNaN(exit)) {
+          const direction = f.direction;
+          const rawPips = direction === "long" ? (exit - entry) * multiplier : (entry - exit) * multiplier;
+          updated.pips = String(parseFloat(rawPips.toFixed(1)));
+        }
+      }
+
+      // Re-calc pips if direction changes
+      if (name === "direction") {
+        const entry = parseFloat(f.entry);
+        const exit = parseFloat(f.exit);
+        const multiplier = ASSET_TYPES.find((a) => a.value === f.assetType)?.multiplier ?? 1;
+        if (!isNaN(entry) && !isNaN(exit)) {
+          const rawPips = value === "long" ? (exit - entry) * multiplier : (entry - exit) * multiplier;
+          updated.pips = String(parseFloat(rawPips.toFixed(1)));
+        }
+      }
+
       return updated;
     });
     if (errors[name]) setErrors((er) => ({ ...er, [name]: null }));
@@ -72,6 +99,7 @@ export function useTrades() {
   const buildPayload = () => ({
     date: form.date,
     asset: form.asset.trim().toUpperCase(),
+    assetType: form.assetType,
     direction: form.direction,
     entry: parseFloat(form.entry),
     exit: parseFloat(form.exit),
@@ -127,6 +155,7 @@ export function useTrades() {
     setForm({
       date: t.date,
       asset: t.asset,
+      assetType: t.assetType || "forex",
       direction: t.direction,
       entry: String(t.entry),
       exit: String(t.exit),

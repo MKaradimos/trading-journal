@@ -1,5 +1,6 @@
 import { Plus, Pencil, X } from "lucide-react";
 import { Field, inputCls } from "./ui";
+import { ASSET_TYPES } from "../constants";
 
 export default function TradeForm({
   form, setForm, editingId, errors,
@@ -37,13 +38,26 @@ export default function TradeForm({
           />
         </Field>
 
+        <Field label="Τύπος Asset">
+          <select
+            name="assetType"
+            value={form.assetType}
+            onChange={(e) => handleChange(e, currentCapital)}
+            className={inputCls()}
+          >
+            {ASSET_TYPES.map((a) => (
+              <option key={a.value} value={a.value}>{a.label}</option>
+            ))}
+          </select>
+        </Field>
+
         <Field label="Κατεύθυνση">
           <div className="flex gap-2">
             {["long", "short"].map((dir) => (
               <button
                 key={dir}
                 type="button"
-                onClick={() => setForm((f) => ({ ...f, direction: dir }))}
+                onClick={() => handleChange({ target: { name: "direction", value: dir } }, currentCapital)}
                 className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-all border ${
                   form.direction === dir
                     ? dir === "long"
