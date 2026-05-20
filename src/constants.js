@@ -14,6 +14,7 @@ export const emptyForm = {
   assetType: "forex",
   direction: "long",
   entry: "",
+  stopLoss: "",
   exit: "",
   risk: "",
   plEur: "",

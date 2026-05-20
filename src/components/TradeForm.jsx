@@ -72,30 +72,26 @@ export default function TradeForm({
           </div>
         </Field>
 
-        <Field label="Risk %">
-          <input
-            type="number" inputMode="decimal" step="0.01" name="risk"
-            placeholder="π.χ. 1.5" value={form.risk} onChange={handleChange}
-            className={inputCls()}
-          />
-          {form.risk !== "" && !isNaN(parseFloat(form.risk)) && currentCapital > 0 && (
-            <p className="mt-1 text-xs font-mono text-amber-400">
-              = {((parseFloat(form.risk) / 100) * currentCapital).toFixed(2)} €
-            </p>
-          )}
-        </Field>
 
         <Field label="Entry Price" error={errors.entry}>
           <input
             type="number" inputMode="decimal" step="any" name="entry"
-            value={form.entry} onChange={handleChange} className={inputCls(errors.entry)}
+            value={form.entry} onChange={(e) => handleChange(e, currentCapital)} className={inputCls(errors.entry)}
+          />
+        </Field>
+
+        <Field label="Stop Loss" >
+          <input
+            type="number" inputMode="decimal" step="any" name="stopLoss"
+            placeholder="τιμή SL"
+            value={form.stopLoss} onChange={(e) => handleChange(e, currentCapital)} className={inputCls()}
           />
         </Field>
 
         <Field label="Exit Price" error={errors.exit}>
           <input
             type="number" inputMode="decimal" step="any" name="exit"
-            value={form.exit} onChange={handleChange} className={inputCls(errors.exit)}
+            value={form.exit} onChange={(e) => handleChange(e, currentCapital)} className={inputCls(errors.exit)}
           />
         </Field>
 
@@ -107,20 +103,35 @@ export default function TradeForm({
           />
         </Field>
 
-        <Field label="P/L (%)" error={errors.plPct}>
+        <Field label="P/L % (αυτόματο)" error={errors.plPct}>
           <input
             type="number" inputMode="decimal" step="0.01" name="plPct"
-            placeholder="αυτόματο από P/L €"
-            value={form.plPct} onChange={(e) => handleChange(e, currentCapital)}
-            className={inputCls(errors.plPct) + " text-slate-400"}
+            placeholder="— αυτόματο"
+            value={form.plPct} readOnly
+            className={inputCls(errors.plPct) + " text-slate-400 cursor-default"}
           />
         </Field>
 
-        <Field label="Pips">
+        <Field label="Risk % (αυτόματο)">
+          <input
+            type="number" inputMode="decimal" step="0.01" name="risk"
+            placeholder="— αυτόματο"
+            value={form.risk} readOnly
+            className={inputCls() + " text-amber-400 cursor-default"}
+          />
+          {form.risk !== "" && !isNaN(parseFloat(form.risk)) && currentCapital > 0 && (
+            <p className="mt-1 text-xs font-mono text-amber-400">
+              = {((parseFloat(form.risk) / 100) * currentCapital).toFixed(2)} €
+            </p>
+          )}
+        </Field>
+
+        <Field label="Pips (αυτόματο)">
           <input
             type="number" inputMode="decimal" step="0.1" name="pips"
-            placeholder="π.χ. 45 ή -20"
-            value={form.pips} onChange={(e) => handleChange(e, currentCapital)} className={inputCls()}
+            placeholder="— αυτόματο"
+            value={form.pips} readOnly
+            className={inputCls() + " text-slate-400 cursor-default"}
           />
         </Field>
 

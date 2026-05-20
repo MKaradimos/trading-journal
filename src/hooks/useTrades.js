@@ -32,34 +32,33 @@ export function useTrades() {
     setForm((f) => {
       const updated = { ...f, [name]: value };
 
+      const entry     = parseFloat(name === "entry"    ? value : f.entry);
+      const stopLoss  = parseFloat(name === "stopLoss" ? value : f.stopLoss);
+      const exit      = parseFloat(name === "exit"     ? value : f.exit);
+      const plEur     = parseFloat(name === "plEur"    ? value : f.plEur);
+      const direction = name === "direction" ? value : f.direction;
+      const assetType = name === "assetType" ? value : f.assetType;
+      const multiplier = ASSET_TYPES.find((a) => a.value === assetType)?.multiplier ?? 1;
+
       // Auto P/L % from P/L €
-      if (name === "plEur" && currentCapital > 0) {
-        const eur = parseFloat(value);
-        updated.plPct = isNaN(eur) ? f.plPct : String(((eur / currentCapital) * 100).toFixed(2));
+      if (name === "plEur" && currentCapital > 0 && !isNaN(plEur)) {
+        updated.plPct = String(((plEur / currentCapital) * 100).toFixed(2));
       }
 
-      // Auto pips from entry/exit/assetType
-      if (name === "entry" || name === "exit" || name === "assetType") {
-        const entry = parseFloat(name === "entry" ? value : f.entry);
-        const exit = parseFloat(name === "exit" ? value : f.exit);
-        const assetType = name === "assetType" ? value : f.assetType;
-        const multiplier = ASSET_TYPES.find((a) => a.value === assetType)?.multiplier ?? 1;
-        if (!isNaN(entry) && !isNaN(exit)) {
-          const direction = f.direction;
-          const rawPips = direction === "long" ? (exit - entry) * multiplier : (entry - exit) * multiplier;
-          updated.pips = String(parseFloat(rawPips.toFixed(1)));
-        }
+      // Auto pips from entry/exit/direction/assetType
+      if (!isNaN(entry) && !isNaN(exit)) {
+        const rawPips = direction === "long" ? (exit - entry) * multiplier : (entry - exit) * multiplier;
+        updated.pips = String(parseFloat(rawPips.toFixed(1)));
       }
 
-      // Re-calc pips if direction changes
-      if (name === "direction") {
-        const entry = parseFloat(f.entry);
-        const exit = parseFloat(f.exit);
-        const multiplier = ASSET_TYPES.find((a) => a.value === f.assetType)?.multiplier ?? 1;
-        if (!isNaN(entry) && !isNaN(exit)) {
-          const rawPips = value === "long" ? (exit - entry) * multiplier : (entry - exit) * multiplier;
-          updated.pips = String(parseFloat(rawPips.toFixed(1)));
-        }
+      // Auto Risk % and Risk € from entry/stopLoss/plEur/capital
+      if (!isNaN(entry) && !isNaN(stopLoss) && !isNaN(plEur) && currentCapital > 0 && entry !== stopLoss) {
+        const slDistance = Math.abs(entry - stopLoss);
+        const tpDistance = !isNaN(exit) ? Math.abs(exit - entry) : null;
+        const riskEur = tpDistance
+          ? Math.abs(plEur) * (slDistance / tpDistance)
+          : Math.abs(plEur * (slDistance / (Math.abs(exit - entry) || slDistance)));
+        updated.risk = String(((riskEur / currentCapital) * 100).toFixed(2));
       }
 
       return updated;
@@ -102,6 +101,7 @@ export function useTrades() {
     assetType: form.assetType,
     direction: form.direction,
     entry: parseFloat(form.entry),
+    stopLoss: form.stopLoss === "" ? null : parseFloat(form.stopLoss),
     exit: parseFloat(form.exit),
     risk: form.risk === "" ? null : parseFloat(form.risk),
     plEur: parseFloat(form.plEur),
@@ -158,6 +158,7 @@ export function useTrades() {
       assetType: t.assetType || "forex",
       direction: t.direction,
       entry: String(t.entry),
+      stopLoss: t.stopLoss != null ? String(t.stopLoss) : "",
       exit: String(t.exit),
       risk: t.risk != null ? String(t.risk) : "",
       plEur: String(t.plEur),
