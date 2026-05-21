@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { INITIAL_CAPITAL, MAX_LOSS_STREAK } from "../constants";
+import { INITIAL_CAPITAL } from "../constants";
 import { monthKey, monthLabel } from "../utils";
 
 export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
@@ -54,6 +54,9 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
     const totalPct = trades.reduce((s, t) => s + t.plPct, 0);
     const best = trades.reduce((b, t) => (b === null || t.plEur > b.plEur ? t : b), null);
     const worst = trades.reduce((w, t) => (w === null || t.plEur < w.plEur ? t : w), null);
+    const rTrades = trades.filter((t) => t.rValue != null);
+    const totalR = rTrades.reduce((s, t) => s + t.rValue, 0);
+    const avgR = rTrades.length > 0 ? totalR / rTrades.length : null;
     return {
       month: "all",
       label: "Όλοι οι μήνες",
@@ -66,6 +69,8 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
       avgEur: trades.length > 0 ? totalEur / trades.length : 0,
       best,
       worst,
+      totalR: rTrades.length > 0 ? totalR : null,
+      avgR,
     };
   }, [trades]);
 
@@ -78,17 +83,6 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
     const totalPl = trades.reduce((s, t) => s + (t.plEur || 0), 0);
     return INITIAL_CAPITAL + totalPl + netTransactions;
   }, [trades, netTransactions]);
-
-  // Loss streak — μετράει consecutive losses από το τελευταίο trade
-  const lossStreak = useMemo(() => {
-    const sorted = [...trades].sort((a, b) => b.date.localeCompare(a.date));
-    let streak = 0;
-    for (const t of sorted) {
-      if (t.plEur < 0) streak++;
-      else break;
-    }
-    return streak;
-  }, [trades]);
 
   // Κεφάλαιο αρχής τρέχοντος μήνα = currentCapital μείον τα P/L του τρέχοντος μήνα
   const monthTarget = useMemo(() => {
@@ -106,5 +100,5 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
     return trades.filter((t) => monthKey(t.date) === selectedMonth);
   }, [trades, selectedMonth]);
 
-  return { monthlyStats, availableMonths, displayedStats, currentCapital, displayedTrades, monthTarget, lossStreak };
+  return { monthlyStats, availableMonths, displayedStats, currentCapital, displayedTrades, monthTarget };
 }

@@ -41,7 +41,7 @@ export default function TradingJournal({ user }) {
 
   const {
     monthlyStats, availableMonths,
-    displayedStats, currentCapital, displayedTrades, monthTarget, lossStreak,
+    displayedStats, currentCapital, displayedTrades, monthTarget,
   } = useMonthlyStats(trades, selectedMonth, netTransactions);
 
   return (

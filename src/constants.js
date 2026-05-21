@@ -22,13 +22,7 @@ export function detectAssetType(asset) {
   return "forex";
 }
 
-export const SETUP_QUALITY = [
-  { value: "aplus", label: "A+ Setup", riskPct: 9, color: "emerald" },
-  { value: "normal", label: "Normal",  riskPct: 5, color: "amber" },
-];
-
 export const MONTHLY_R_TARGET = { min: 7, max: 9 };
-export const MAX_LOSS_STREAK  = 2;
 
 export const emptyForm = {
   date: new Date().toISOString().split("T")[0],
@@ -43,7 +37,6 @@ export const emptyForm = {
   plPct: "",
   pips: "",
   rValue: "",
-  setup: "aplus",
   notes: "",
   screenshot: "",
 };

@@ -4,7 +4,7 @@ import {
   collection, addDoc, deleteDoc, updateDoc,
   doc, onSnapshot, query, orderBy,
 } from "firebase/firestore";
-import { TRADES_COLLECTION, emptyForm, ASSET_TYPES, detectAssetType, SETUP_QUALITY } from "../constants";
+import { TRADES_COLLECTION, emptyForm, ASSET_TYPES, detectAssetType } from "../constants";
 import { readFileAsDataURL } from "../utils";
 
 export function useTrades() {
@@ -118,7 +118,6 @@ export function useTrades() {
     plPct: parseFloat(form.plPct),
     pips: form.pips === "" ? null : parseFloat(form.pips),
     rValue: form.rValue === "" ? null : parseFloat(form.rValue),
-    setup: form.setup || "aplus",
     notes: form.notes.trim(),
     screenshot: form.screenshot,
   });
@@ -177,7 +176,6 @@ export function useTrades() {
       plPct: String(t.plPct),
       pips: t.pips != null ? String(t.pips) : "",
       rValue: t.rValue != null ? String(t.rValue) : "",
-      setup: t.setup || "aplus",
       notes: t.notes || "",
       screenshot: t.screenshot || "",
     });
