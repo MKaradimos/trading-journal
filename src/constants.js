@@ -1,6 +1,6 @@
 export const TRADES_COLLECTION = "trades";
 export const TRANSACTIONS_COLLECTION = "transactions";
-export const INITIAL_CAPITAL = 4180;
+export const INITIAL_CAPITAL = 3714;
 
 export const ASSET_TYPES = [
   { value: "forex",  label: "Forex",  multiplier: 10000 },

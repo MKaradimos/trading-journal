@@ -84,9 +84,12 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
     return INITIAL_CAPITAL + totalPl + netTransactions;
   }, [trades, netTransactions]);
 
-  // Κεφάλαιο αρχής τρέχοντος μήνα = currentCapital μείον τα P/L του τρέχοντος μήνα
+  // Στόχος ξεκινάει από Ιούνιο 2026 — ο Μάιος είναι μεταβατικός μήνας
+  const FIRST_TARGET_MONTH = "2026-06";
+
   const monthTarget = useMemo(() => {
     const currentMonth = new Date().toISOString().slice(0, 7);
+    if (currentMonth < FIRST_TARGET_MONTH) return null;
     const thisMonthPl = trades
       .filter((t) => monthKey(t.date) === currentMonth)
       .reduce((s, t) => s + (t.plEur || 0), 0);
