@@ -42,7 +42,7 @@ export default function TradingJournal({ user }) {
 
   const {
     monthlyStats, availableMonths,
-    displayedStats, currentCapital, displayedTrades, monthTarget, drawdownStats,
+    displayedStats, currentCapital, displayedTrades, monthTarget,
   } = useMonthlyStats(trades, selectedMonth, netTransactions);
 
   return (
@@ -134,7 +134,6 @@ export default function TradingJournal({ user }) {
           <CapitalPanel
             currentCapital={currentCapital}
             monthTarget={monthTarget}
-            drawdownStats={drawdownStats}
             currentMonthStats={monthlyStats.find((m) => m.month === new Date().toISOString().slice(0, 7)) ?? null}
           />
         )}
