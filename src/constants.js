@@ -32,6 +32,8 @@ export const MONTHLY_CAPITAL_TARGETS = {
   "2026-10": 114773,
   "2026-11": 218069,
   "2026-12": 414331,
+  "2027-01": 787229,
+  "2027-02": 1000000,
 };
 
 export const emptyForm = {
