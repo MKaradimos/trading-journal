@@ -1,6 +1,6 @@
 export const TRADES_COLLECTION = "trades";
 export const TRANSACTIONS_COLLECTION = "transactions";
-export const INITIAL_CAPITAL = 3714;
+export const INITIAL_CAPITAL = 4635;
 
 export const ASSET_TYPES = [
   { value: "forex",  label: "Forex",  multiplier: 10000 },
@@ -23,6 +23,16 @@ export function detectAssetType(asset) {
 }
 
 export const MONTHLY_R_TARGET = { min: 7, max: 9 };
+
+export const MONTHLY_CAPITAL_TARGETS = {
+  "2026-06": 8807,
+  "2026-07": 16733,
+  "2026-08": 31793,
+  "2026-09": 60407,
+  "2026-10": 114773,
+  "2026-11": 218069,
+  "2026-12": 414331,
+};
 
 export const emptyForm = {
   date: new Date().toISOString().split("T")[0],

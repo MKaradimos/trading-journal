@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { INITIAL_CAPITAL } from "../constants";
+import { INITIAL_CAPITAL, MONTHLY_CAPITAL_TARGETS } from "../constants";
 import { monthKey, monthLabel } from "../utils";
 
 export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
@@ -101,11 +101,13 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
   }, [trades, netTransactions]);
 
   const monthTarget = useMemo(() => {
+    const currentMonth = new Date().toISOString().slice(0, 7);
+    const target = MONTHLY_CAPITAL_TARGETS[currentMonth] ?? null;
+    if (!target) return null;
     const thisMonthPl = trades
-      .filter((t) => monthKey(t.date) === new Date().toISOString().slice(0, 7))
+      .filter((t) => monthKey(t.date) === currentMonth)
       .reduce((s, t) => s + (t.plEur || 0), 0);
     const capitalAtMonthStart = currentCapital - thisMonthPl;
-    const target = capitalAtMonthStart * 1.9;
     return { target, capitalAtMonthStart };
   }, [trades, currentCapital]);
 
