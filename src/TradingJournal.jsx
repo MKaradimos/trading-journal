@@ -16,6 +16,7 @@ import TradeTable from "./components/TradeTable";
 import MonthlySummary from "./components/MonthlySummary";
 import WeeklyReview from "./components/WeeklyReview";
 import MonthlyTargets from "./components/MonthlyTargets";
+import TradeCalendar from "./components/TradeCalendar";
 import ReportModal from "./components/ReportModal";
 import { ConfirmDialog } from "./components/ui";
 
@@ -184,6 +185,8 @@ export default function TradingJournal({ user }) {
         </section>
 
         <MonthlySummary trades={displayedTrades} stats={displayedStats} />
+
+        <TradeCalendar trades={trades} />
 
         <MonthlyTargets currentCapital={currentCapital} monthlyStats={monthlyStats} />
 
