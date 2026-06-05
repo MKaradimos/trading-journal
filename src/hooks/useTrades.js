@@ -38,10 +38,11 @@ export function useTrades() {
         if (detected) updated.assetType = detected;
       }
 
-      const entry     = parseFloat(name === "entry"    ? value : f.entry);
-      const stopLoss  = parseFloat(name === "stopLoss" ? value : f.stopLoss);
-      const exit      = parseFloat(name === "exit"     ? value : f.exit);
-      const plEur     = parseFloat(name === "plEur"    ? value : f.plEur);
+      const clean = (v) => parseFloat(String(v).replace(/^\+/, ""));
+      const entry     = clean(name === "entry"    ? value : f.entry);
+      const stopLoss  = clean(name === "stopLoss" ? value : f.stopLoss);
+      const exit      = clean(name === "exit"     ? value : f.exit);
+      const plEur     = clean(name === "plEur"    ? value : f.plEur);
       const direction = name === "direction" ? value : f.direction;
       const assetType = name === "assetType" ? value : (name === "asset" ? (detectAssetType(value) ?? f.assetType) : f.assetType);
       const multiplier = ASSET_TYPES.find((a) => a.value === assetType)?.multiplier ?? 1;
@@ -99,8 +100,8 @@ export function useTrades() {
     if (!f.asset.trim()) er.asset = "Απαιτείται";
     if (f.entry === "" || isNaN(parseFloat(f.entry))) er.entry = "Μη έγκυρο";
     if (f.exit === "" || isNaN(parseFloat(f.exit))) er.exit = "Μη έγκυρο";
-    if (f.plEur === "" || isNaN(parseFloat(f.plEur))) er.plEur = "Μη έγκυρο";
-    if (f.plPct === "" || isNaN(parseFloat(f.plPct))) er.plPct = "Μη έγκυρο (ή πέρνα P/L € για αυτόματο)";
+    if (f.plEur === "" || isNaN(parseFloat(String(f.plEur).replace(/^\+/, "")))) er.plEur = "Μη έγκυρο";
+    if (f.plPct === "" || isNaN(parseFloat(String(f.plPct).replace(/^\+/, "")))) er.plPct = "Μη έγκυρο (ή πέρνα P/L € για αυτόματο)";
     setErrors(er);
     return Object.keys(er).length === 0;
   };
@@ -114,12 +115,16 @@ export function useTrades() {
     stopLoss: form.stopLoss === "" ? null : parseFloat(form.stopLoss),
     exit: parseFloat(form.exit),
     risk: form.risk === "" ? null : parseFloat(form.risk),
-    plEur: parseFloat(form.plEur),
-    plPct: parseFloat(form.plPct),
+    plEur: parseFloat(String(form.plEur).replace(/^\+/, "")),
+    plPct: parseFloat(String(form.plPct).replace(/^\+/, "")),
     pips: form.pips === "" ? null : parseFloat(form.pips),
     rValue: form.rValue === "" ? null : parseFloat(form.rValue),
     notes: form.notes.trim(),
     screenshot: form.screenshot,
+    energy: form.energy === "" ? null : parseInt(form.energy),
+    stress: form.stress === "" ? null : parseInt(form.stress),
+    confidence: form.confidence === "" ? null : parseInt(form.confidence),
+    followedPlan: form.followedPlan,
   });
 
   const saveTrade = async () => {
@@ -178,6 +183,10 @@ export function useTrades() {
       rValue: t.rValue != null ? String(t.rValue) : "",
       notes: t.notes || "",
       screenshot: t.screenshot || "",
+      energy: t.energy != null ? String(t.energy) : "",
+      stress: t.stress != null ? String(t.stress) : "",
+      confidence: t.confidence != null ? String(t.confidence) : "",
+      followedPlan: t.followedPlan ?? null,
     });
     setErrors({});
     setTimeout(() => {

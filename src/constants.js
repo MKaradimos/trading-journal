@@ -39,4 +39,8 @@ export const emptyForm = {
   rValue: "",
   notes: "",
   screenshot: "",
+  energy: "",
+  stress: "",
+  confidence: "",
+  followedPlan: null,
 };

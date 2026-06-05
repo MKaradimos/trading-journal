@@ -14,6 +14,7 @@ import StatsSection from "./components/StatsSection";
 import MonthlyChart from "./components/MonthlyChart";
 import TradeTable from "./components/TradeTable";
 import MonthlySummary from "./components/MonthlySummary";
+import WeeklyReview from "./components/WeeklyReview";
 import ReportModal from "./components/ReportModal";
 import { ConfirmDialog } from "./components/ui";
 
@@ -41,7 +42,7 @@ export default function TradingJournal({ user }) {
 
   const {
     monthlyStats, availableMonths,
-    displayedStats, currentCapital, displayedTrades, monthTarget,
+    displayedStats, currentCapital, displayedTrades, monthTarget, drawdownStats,
   } = useMonthlyStats(trades, selectedMonth, netTransactions);
 
   return (
@@ -133,6 +134,7 @@ export default function TradingJournal({ user }) {
           <CapitalPanel
             currentCapital={currentCapital}
             monthTarget={monthTarget}
+            drawdownStats={drawdownStats}
             currentMonthStats={monthlyStats.find((m) => m.month === new Date().toISOString().slice(0, 7)) ?? null}
           />
         )}
@@ -183,6 +185,8 @@ export default function TradingJournal({ user }) {
         </section>
 
         <MonthlySummary trades={displayedTrades} stats={displayedStats} />
+
+        <WeeklyReview trades={trades} />
 
         <footer className="mt-10 text-center text-xs text-slate-600 font-mono">
           Firebase Firestore · real-time sync

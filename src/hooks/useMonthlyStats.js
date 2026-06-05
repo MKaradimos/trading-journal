@@ -84,6 +84,22 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
     return INITIAL_CAPITAL + totalPl + netTransactions;
   }, [trades, netTransactions]);
 
+  const drawdownStats = useMemo(() => {
+    if (!trades.length) return { peakEquity: INITIAL_CAPITAL, currentDrawdown: 0, maxDrawdown: 0 };
+    const sorted = [...trades].sort((a, b) => a.date.localeCompare(b.date));
+    let equity = INITIAL_CAPITAL + netTransactions;
+    let peak = equity;
+    let maxDD = 0;
+    for (const t of sorted) {
+      equity += t.plEur || 0;
+      if (equity > peak) peak = equity;
+      const dd = peak > 0 ? ((peak - equity) / peak) * 100 : 0;
+      if (dd > maxDD) maxDD = dd;
+    }
+    const currentDD = peak > 0 ? ((peak - equity) / peak) * 100 : 0;
+    return { peakEquity: peak, currentDrawdown: currentDD, maxDrawdown: maxDD };
+  }, [trades, netTransactions]);
+
   const monthTarget = useMemo(() => {
     const thisMonthPl = trades
       .filter((t) => monthKey(t.date) === new Date().toISOString().slice(0, 7))
@@ -98,5 +114,5 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
     return trades.filter((t) => monthKey(t.date) === selectedMonth);
   }, [trades, selectedMonth]);
 
-  return { monthlyStats, availableMonths, displayedStats, currentCapital, displayedTrades, monthTarget };
+  return { monthlyStats, availableMonths, displayedStats, currentCapital, displayedTrades, monthTarget, drawdownStats };
 }

@@ -12,7 +12,7 @@ function RBar({ value, min, max }) {
   );
 }
 
-export default function CapitalPanel({ currentCapital, monthTarget, currentMonthStats }) {
+export default function CapitalPanel({ currentCapital, monthTarget, drawdownStats, currentMonthStats }) {
   const pl = currentCapital - INITIAL_CAPITAL;
   const pct = (pl / INITIAL_CAPITAL) * 100;
   const positive = currentCapital >= INITIAL_CAPITAL;
@@ -58,6 +58,28 @@ export default function CapitalPanel({ currentCapital, monthTarget, currentMonth
           />
         </div>
       </div>
+
+      {/* Drawdown row */}
+      {drawdownStats && (
+        <div className="grid grid-cols-3 gap-3">
+          <div className="rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-3">
+            <div className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-1">Peak Equity</div>
+            <div className="text-xl font-bold font-mono text-white">{fmt(drawdownStats.peakEquity)} €</div>
+          </div>
+          <div className={`rounded-xl border px-4 py-3 ${drawdownStats.currentDrawdown > 5 ? "border-rose-500/40 bg-rose-500/5" : "border-slate-700 bg-slate-900/40"}`}>
+            <div className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-1">Current Drawdown</div>
+            <div className={`text-xl font-bold font-mono ${drawdownStats.currentDrawdown > 5 ? "text-rose-400" : drawdownStats.currentDrawdown > 0 ? "text-amber-400" : "text-emerald-400"}`}>
+              {drawdownStats.currentDrawdown > 0 ? "-" : ""}{fmt(drawdownStats.currentDrawdown)}%
+            </div>
+          </div>
+          <div className={`rounded-xl border px-4 py-3 ${drawdownStats.maxDrawdown > 10 ? "border-rose-500/40 bg-rose-500/5" : "border-slate-700 bg-slate-900/40"}`}>
+            <div className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-1">Max Drawdown</div>
+            <div className={`text-xl font-bold font-mono ${drawdownStats.maxDrawdown > 10 ? "text-rose-400" : drawdownStats.maxDrawdown > 5 ? "text-amber-400" : "text-emerald-400"}`}>
+              {drawdownStats.maxDrawdown > 0 ? "-" : ""}{fmt(drawdownStats.maxDrawdown)}%
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* R Performance + Monthly target row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
