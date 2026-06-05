@@ -184,60 +184,6 @@ export default function TradeForm({
         </Field>
       </div>
 
-      {/* Psychology */}
-      <div className="mt-4 p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl">
-        <p className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-3">Psychology (προαιρετικό)</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { name: "energy", label: "Energy" },
-            { name: "stress", label: "Stress" },
-            { name: "confidence", label: "Confidence" },
-          ].map(({ name, label }) => (
-            <Field key={name} label={`${label} (1–10)`}>
-              <div className="flex gap-1 flex-wrap">
-                {[1,2,3,4,5,6,7,8,9,10].map((n) => (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => handleChange({ target: { name, value: String(n) } }, currentCapital)}
-                    className={`w-7 h-7 rounded text-xs font-mono font-bold transition-all border ${
-                      String(form[name]) === String(n)
-                        ? name === "stress"
-                          ? "bg-rose-500/30 border-rose-500/60 text-rose-300"
-                          : "bg-emerald-500/30 border-emerald-500/60 text-emerald-300"
-                        : "bg-slate-800 border-slate-700 text-slate-500 hover:border-slate-500"
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </Field>
-          ))}
-        </div>
-        <div className="mt-3">
-          <p className="text-xs text-slate-500 mb-2">Ακολούθησες το plan;</p>
-          <div className="flex gap-2">
-            {[{ value: true, label: "✓ Ναι" }, { value: false, label: "✗ Όχι" }].map((opt) => (
-              <button
-                key={String(opt.value)}
-                type="button"
-                onClick={() => handleChange({ target: { name: "followedPlan", value: opt.value } }, currentCapital)}
-                className={`px-4 py-1.5 rounded-md text-sm font-medium border transition-all ${
-                  form.followedPlan === opt.value
-                    ? opt.value
-                      ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300"
-                      : "bg-rose-500/20 border-rose-500/50 text-rose-300"
-                    : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {Object.keys(errors).length > 0 && (
         <div id="form-error-banner" className="mt-4 px-4 py-3 bg-rose-500/10 border border-rose-500/30 rounded-md text-rose-400 text-sm font-mono flex items-center gap-2">
           <X className="w-4 h-4 shrink-0" />
