@@ -1,6 +1,5 @@
 import { INITIAL_CAPITAL, MONTHLY_CAPITAL_TARGETS } from "../constants";
 import { fmt } from "../utils";
-import { monthLabel } from "../utils";
 
 export default function MonthlyTargets({ currentCapital }) {
   const months = Object.entries(MONTHLY_CAPITAL_TARGETS);
@@ -13,7 +12,7 @@ export default function MonthlyTargets({ currentCapital }) {
   return (
     <section className="mb-10 bg-slate-900/40 border border-slate-800 rounded-xl overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-800">
-        <h2 className="text-lg font-semibold text-white">Μηνιαίοι Στόχοι</h2>
+        <h2 className="text-lg font-semibold text-white">Στόχοι Κεφαλαίου</h2>
       </div>
       <div className="divide-y divide-slate-800">
         {months.map(([month, target], i) => {
@@ -38,7 +37,7 @@ export default function MonthlyTargets({ currentCapital }) {
                   {isPast && !achieved && actualBalance != null && <span className="text-xs px-2 py-0.5 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-400 font-mono">✗ Δεν επιτεύχθηκε</span>}
                   {!isCurrent && !isPast && <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700 border border-slate-600 text-slate-500 font-mono">Επόμενος</span>}
                   <span className={`font-semibold ${isCurrent ? "text-white" : isPast ? "text-slate-300" : "text-slate-500"}`}>
-                    {monthLabel(month)}
+                    Βήμα {i + 1}
                   </span>
                 </div>
                 <div className="text-right">
