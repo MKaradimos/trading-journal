@@ -2,8 +2,13 @@ import { INITIAL_CAPITAL, MONTHLY_CAPITAL_TARGETS } from "../constants";
 import { fmt } from "../utils";
 import { monthLabel } from "../utils";
 
-export default function MonthlyTargets({ currentCapital, monthlyStats }) {
+export default function MonthlyTargets({ currentCapital }) {
   const months = Object.entries(MONTHLY_CAPITAL_TARGETS);
+
+  // "Τρέχων" μήνας = ο πρώτος στόχος που το πραγματικό κεφάλαιο δεν έχει ακόμα ξεπεράσει,
+  // όχι ο ημερολογιακός μήνας — έτσι το πλάνο προχωράει αυτόματα όταν ξεπερνάς στόχους νωρίς.
+  const currentIndex = months.findIndex(([, target]) => currentCapital < target);
+  const effectiveCurrentIndex = currentIndex === -1 ? months.length - 1 : currentIndex;
 
   return (
     <section className="mb-10 bg-slate-900/40 border border-slate-800 rounded-xl overflow-hidden">
@@ -13,16 +18,9 @@ export default function MonthlyTargets({ currentCapital, monthlyStats }) {
       <div className="divide-y divide-slate-800">
         {months.map(([month, target], i) => {
           const prevTarget = i === 0 ? INITIAL_CAPITAL : months[i - 1][1];
-          const stats = monthlyStats.find((m) => m.month === month);
-          const now = new Date().toISOString().slice(0, 7);
-          const isCurrent = month === now;
-          const isPast = month < now;
-          const endBalance = isPast || isCurrent ? currentCapital : null;
-          const actualBalance = isPast
-            ? (stats ? INITIAL_CAPITAL + monthlyStats
-                .filter((m) => m.month <= month)
-                .reduce((s, m) => s + m.totalEur, 0) : prevTarget)
-            : isCurrent ? currentCapital : null;
+          const isCurrent = i === effectiveCurrentIndex;
+          const isPast = i < effectiveCurrentIndex;
+          const actualBalance = isPast || isCurrent ? currentCapital : null;
 
           const progressPct = actualBalance != null && target > prevTarget
             ? Math.min(100, Math.max(0, ((actualBalance - prevTarget) / (target - prevTarget)) * 100))

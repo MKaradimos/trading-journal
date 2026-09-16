@@ -101,15 +101,16 @@ export function useMonthlyStats(trades, selectedMonth, netTransactions = 0) {
   }, [trades, netTransactions]);
 
   const monthTarget = useMemo(() => {
-    const currentMonth = new Date().toISOString().slice(0, 7);
-    const target = MONTHLY_CAPITAL_TARGETS[currentMonth] ?? null;
-    if (!target) return null;
-    const thisMonthPl = trades
-      .filter((t) => monthKey(t.date) === currentMonth)
-      .reduce((s, t) => s + (t.plEur || 0), 0);
-    const capitalAtMonthStart = currentCapital - thisMonthPl;
+    // Ο "τρέχων" στόχος είναι ο πρώτος που το πραγματικό κεφάλαιο δεν έχει ξεπεράσει ακόμα,
+    // όχι ο ημερολογιακός μήνας — έτσι αν ξεπεράσεις στόχους νωρίς, ο στόχος προχωράει αυτόματα.
+    const entries = Object.entries(MONTHLY_CAPITAL_TARGETS);
+    const idx = entries.findIndex(([, t]) => currentCapital < t);
+    const effectiveIdx = idx === -1 ? entries.length - 1 : idx;
+    const target = entries[effectiveIdx]?.[1] ?? null;
+    if (target == null) return null;
+    const capitalAtMonthStart = effectiveIdx === 0 ? INITIAL_CAPITAL : entries[effectiveIdx - 1][1];
     return { target, capitalAtMonthStart };
-  }, [trades, currentCapital]);
+  }, [currentCapital]);
 
   const displayedTrades = useMemo(() => {
     if (selectedMonth === "all") return trades;
