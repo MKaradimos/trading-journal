@@ -58,8 +58,8 @@ describe('useMonthlyStats', () => {
 
   it('calculates currentCapital correctly', () => {
     const { result } = renderHook(() => useMonthlyStats(trades, 'all'));
-    // INITIAL_CAPITAL=400, totalPl = -445+200+300 = 55
-    expect(result.current.currentCapital).toBe(455);
+    // INITIAL_CAPITAL=270, totalPl = -445+200+300 = 55
+    expect(result.current.currentCapital).toBe(325);
   });
 
   it('filters displayedTrades by month', () => {
